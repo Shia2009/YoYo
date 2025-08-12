@@ -36,6 +36,18 @@
   <div class="container">
     <h1><span class="username">{{ username }}</span></h1>
     <p>Домашняя страница. <span class="time">{{ time }}</span></p>
+      <h2>Все записи пользователя <span class="username">{{ username }}</span></h2>
+      {% if notes %}
+        {% for note in notes %}
+            <div class="note">
+                <h3>{{ note[0] }}</h3>  <!-- subject -->
+                <p>{{ note[1] }}</p>    <!-- notes -->
+                <div class="time">{{ note[2] }}</div>  <!-- time -->
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Пока нет ни одной записи.</p>
+    {% endif %}
             <div id="output">{{ output }}</div>
         </form>
     </div>

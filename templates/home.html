@@ -30,6 +30,10 @@
             background-color: #e9f7fe;
             border-radius: 4px;
         }
+        .link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
     </style>
 </head>
   <body>
@@ -51,6 +55,10 @@
             <button onclick="processInput()">создать пост</button>
                 <div id="output">{{ output }}</div>
         </form>
+      <p></p>
+          <a href="/search_user" class="link">Найти пользователя</a>
+      <p></p>
+                <a href="/user/{{ username }}" class="link">Мой профиль</a>
     </div>
   </body>
 </html>

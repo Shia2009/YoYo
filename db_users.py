@@ -42,17 +42,40 @@ def sign_in_db(login: str, password: str) -> bool:
     conn = sqlite3.connect(DB_link)
     cursor = conn.cursor()
     cursor.execute('''SELECT 1 FROM users WHERE login = ? AND password = ?''', (login, password))
-    print(login, password)
     return cursor.fetchone() is not None  # True если пользователь найден, иначе False
     conn.commit()
     conn.close()
 
-def new_post_db(author:str,theme:str, text:str):
+def new_post(author:str,theme:str, text:str):
     conn = sqlite3.connect(DB_link)
     cursor = conn.cursor()
     named_tuple = time.localtime()  # получаем struct_time
     time_string = time.strftime("%m/%d/%Y, %H:%M:%S", named_tuple)
     parametes = (str(theme), str(text), str(time_string))#что записываем
-    cursor.execute(f"INSERT INTO {author} (subject, text, time) VALUES (?, ?, ?)", parametes)
+    cursor.execute(f"INSERT INTO {author} (subject, notes, time) VALUES (?, ?, ?)", parametes)
     conn.commit()
     conn.close()
+
+def get_user_notes(username):
+    """Получаем все записи пользователя из БД"""
+    conn = sqlite3.connect(DB_link)
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"SELECT subject, notes, time FROM {username} ORDER BY id DESC")
+        notes = cursor.fetchall()
+    except:
+        return False
+    conn.close()
+    return notes
+
+def get_all_usernames():
+    """Получаем все имена пользователей из таблицы users"""
+    conn = sqlite3.connect(DB_link)
+    cursor = conn.cursor()
+
+    # Получаем список всех логинов из таблицы users
+    cursor.execute("SELECT login FROM users")
+    usernames = [row[0] for row in cursor.fetchall()]
+
+    conn.close()
+    return usernames
