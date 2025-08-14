@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoYo Добавить пользователя в комнату</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        #output {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        .user-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .user-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .user-item:hover {
+            background-color: #f0f7ff;
+        }
+        .user-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .user-link:hover {
+            text-decoration: underline;
+        }
+        .no-results {
+            color: #70757a;
+            font-style: italic;
+        }
+        .similar-results {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form method="POST" action="/search_user" class="search-form">
+          <h1>Какого пользователя YoYo добавить в {{ name_room }}</h1>
+            <input type="text"
+                   id="username"
+                   name="username"
+                   placeholder="Введите имя пользователя..."
+                   value="{{ search_query if search_query }}">
+            <button type="submit">Поиск</button>
+        </form>
+
+        <div id="output">
+            {% if exact_match %}
+                <h3>Найден пользователь:</h3>
+                <ul class="user-list">
+                    <li class="user-item">
+                        <a href="/user/add_room/{{ exact_match }}" class="user-link">{{ exact_match }}</a>
+                    </li>
+                </ul>
+
+        </div>
+            {% elif search_query %}
+                <p class="no-results">Пользователи не найдены</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                alert('Пожалуйста, введите имя пользователя');
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>

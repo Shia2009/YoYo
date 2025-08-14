@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0", http-equiv=”refresh” content=”1">
+    <title>YoYo Комнаты</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3367d6;
+        }
+        #output {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
+        }
+        .user-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .user-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .user-item:hover {
+            background-color: #f0f7ff;
+        }
+        .user-link {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .user-link:hover {
+            text-decoration: underline;
+        }
+        .no-results {
+            color: #70757a;
+            font-style: italic;
+        }
+        .similar-results {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+      <form method="POST" action="/create_room" onsubmit="return validateForm()">
+        <h1>Создать комнату</h1>
+          <p>В комнате вы сможете общаться с другими пользователями YoYo</p>
+            <p><a href="/home" class="link">Вернуться домой</a></p>
+            <p><a href="/create_room" class="link">Создать комнату</a></p>
+            <p><a href="/add_room" class="link">Добавить комнату</a></p>
+            <p><a href="/user/{{ username }}" class="link">Мой профиль</a></p>
+            <h2>Ваши комнаты:</h2>
+                {% if rooms %}
+                    {% for room_id, room_name in rooms %}
+                        <div class="note">
+                            <a href="/room/{{ room_id }}">{{ room_name }}</a>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Пока нет ни одной комнаты.</p>
+                {% endif %}
+        </form>
+    </div>
+</body>
+</html>

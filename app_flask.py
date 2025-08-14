@@ -4,6 +4,7 @@ from flask import request
 from flask import redirect
 from flask import url_for
 from flask import session
+from flask import jsonify
 from difflib import get_close_matches
 from datetime import datetime
 from db_users import *
@@ -13,9 +14,8 @@ app = Flask(__name__)
 app.secret_key = secret_key
 
 @app.route('/')
-def start():
-    current_time = datetime.now().strftime("%H:%M:%S")
-    return render_template('index.html', time=current_time, username='shia')
+def index():
+    return render_template('index.html')
 
 
 @app.route('/home', endpoint='home', methods=['GET', 'POST'])
@@ -64,17 +64,55 @@ def show_user_profile(username):
     return render_template(f'user.html', username=username, notes=notes)
 
 
-@app.route('/search_user', endpoint='/search_user', methods=['GET', 'POST'])
+@app.route('/search_user', endpoint='search_user', methods=['GET', 'POST'])
 def search():
     if request.method=='POST':
         user = request.form.get('username')
         users=get_all_usernames()
-        matches = get_close_matches(user, users, n=5, cutoff=0.4)#схожие юзеры
+        matches = get_close_matches(user, users, n=5, cutoff=0.4)#схожие юзеры доделать
         if user in users:
             exact_match=users[users.index(user)]
             return render_template(f'search_user.html',
                                    exact_match=exact_match)
     return render_template(f'search_user.html')
+
+@app.route('/rooms', endpoint='rooms', methods=['GET', 'POST'])
+def rooms_():
+    rooms=get_all_rooms()
+    username = session.get('username')  # Получаем из сессии
+    return render_template(f'rooms.html',
+                           username=username,
+                           rooms=rooms)
+
+@app.route('/create_room', endpoint='create_room', methods=['GET', 'POST'])
+def create_room():
+    username = session.get('username')  # Получаем из сессии
+    if request.method=='POST':
+        name_room = request.form.get('name_room')
+        create_room(username, name_room)
+        return redirect(url_for('rooms'))
+    return render_template(f'create_room.html', username=username)
+
+@app.route('/room/<id>', endpoint='/room/<id>', methods=['GET', 'POST'])
+def room_main(id):
+    username = session.get('username')  # Получаем из сессии
+    session['room_id']=id
+    if request.method=='POST':
+        message = request.form.get('message')
+        if message not in ['', ' ', '  ', None]:
+            new_message_room(id, username, message)
+    messages=get_all_message_from_room(id)
+    rooms=get_all_rooms()
+    for room in rooms:
+        if room[0]==id:
+            name_room=room[1]
+            break
+    return render_template(f'room.html',id_room=id, name_room=name_room, messages=messages)
+
+# @app.route('/room/add_user/{{ id_room }}', endpoint='/room/add_user/{{ id_room }}', methods=['GET', 'POST'])
+# def add_user_to_room(id_room):
+#     return render_template(f'create_room.html', username=username)
+
 
 
 if __name__ == '__main__':
