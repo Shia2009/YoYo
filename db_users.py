@@ -119,28 +119,51 @@ def create_room(admin, name_room):
     conn.commit()
     conn.close()
 
-def get_all_rooms():
-    """Получаем все id и имена комнат (чатов) из таблицы rooms"""
+def get_all_rooms(username):
+    """Возвращает список комнат пользователя в формате [(id, name_room), ...]"""
     conn = sqlite3.connect(DB_link_rooms)
     cursor = conn.cursor()
 
-    #получаем список всех id, name_room из таблицы rooms
-    cursor.execute("SELECT id, name_room FROM rooms")
-    rooms = cursor.fetchall()  #получаем список который выглядит как: [(id1, name1), (id2, name2), ...]
+    try:
+        # Ищем комнаты, где username есть в списке members
+        cursor.execute("""
+            SELECT id, name_room 
+            FROM rooms 
+            WHERE ',' || members || ',' LIKE ?
+        """, (f'%,{username},%',))
 
-    conn.close()
-    return rooms
+        rooms = cursor.fetchall()
+        return rooms
+
+    except sqlite3.Error as e:
+        print(f"Ошибка при запросе к БД: {e}")
+        return []
+    finally:
+        conn.close()
+
 
 def get_all_message_from_room(id_room):
-    """Берет все сообщения с комнаты"""
-    conn = sqlite3.connect(DB_link_rooms)
-    cursor = conn.cursor()
+    """Получает все сообщения из указанной комнаты"""
+    try:
+        conn = sqlite3.connect(DB_link_rooms)  # Укажите правильный путь к БД
+        cursor = conn.cursor()
 
-    cursor.execute(f"SELECT author, text, time FROM {id_room}")
-    parametres = cursor.fetchall()  # получаем список который выглядит как: [(author0, text0, time0), (id1, name1, time1), ...]
+        # Проверяем существование таблицы
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (id_room,))
+        if not cursor.fetchone():
+            raise ValueError(f"Таблица {id_room} не существует")
 
-    conn.close()
-    return parametres
+        # Экранируем имя таблицы и выполняем запрос
+        cursor.execute(f'SELECT author, text, time FROM "{id_room}"')
+        messages = cursor.fetchall()
+
+        return messages
+
+    except sqlite3.Error as e:
+        print(f"Ошибка SQLite: {e}")
+        return []
+    finally:
+        conn.close()
 
 def new_message_room(id_room ,author, text):
     """Новое сообщение в комнате"""
@@ -153,6 +176,117 @@ def new_message_room(id_room ,author, text):
     conn.commit()
     conn.close()
 
-def reverse(list):
+def reverse_list(list):
     """разворот порядка элементов списка"""
     return list[::-1]
+
+
+def add_new_member_to_room(room_id, new_member):
+    try:
+        conn = sqlite3.connect(DB_link_rooms)
+        cursor = conn.cursor()
+
+        # 1. Сначала получаем текущий список участников
+        cursor.execute("SELECT members FROM rooms WHERE id = ?", (room_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            print(f"Комната {room_id} не найдена")
+            return False
+
+        current_members = result[0]
+
+        # 2. Проверяем, не добавлен ли уже пользователь
+        if current_members:
+            members_list = current_members.split(',')
+            if new_member in members_list:
+                print(f"Пользователь {new_member} уже в комнате")
+                return True
+            new_members = f"{current_members},{new_member}"
+        else:
+            new_members = new_member
+
+        # 3. Обновляем запись
+        cursor.execute("""
+            UPDATE rooms 
+            SET members = ? 
+            WHERE id = ?
+        """, (new_members, room_id))
+
+        conn.commit()
+        print(f"Пользователь {new_member} добавлен в комнату {room_id}")
+        return True
+
+    except sqlite3.Error as e:
+        print(f"Ошибка при обновлении базы данных: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+def remove_member_from_room(room_id, member_to_remove):
+    try:
+        conn = sqlite3.connect(DB_link_rooms)
+        cursor = conn.cursor()
+
+        # 1. Получаем текущий список участников
+        cursor.execute("SELECT members FROM rooms WHERE id = ?", (room_id,))
+        result = cursor.fetchone()
+
+        if not result:
+            print(f"Комната {room_id} не найдена")
+            return False
+
+        current_members = result[0]
+
+        # 2. Проверяем, есть ли пользователь в комнате
+        if not current_members or member_to_remove not in current_members.split(','):
+            print(f"Пользователь {member_to_remove} не найден в комнате {room_id}")
+            return False
+
+        # 3. Удаляем пользователя из списка
+        members_list = current_members.split(',')
+        members_list.remove(member_to_remove)
+        updated_members = ','.join(members_list)
+
+        # 4. Обновляем запись в базе
+        cursor.execute("""
+            UPDATE rooms 
+            SET members = ? 
+            WHERE id = ?
+        """, (updated_members, room_id))
+
+        conn.commit()
+        print(f"Пользователь {member_to_remove} удален из комнаты {room_id}")
+        return True
+
+    except sqlite3.Error as e:
+        print(f"Ошибка при обновлении базы данных: {e}")
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+def get_all_rooms_id():
+    """Получаем все комнаты пользователей из таблицы rooms"""
+    conn = sqlite3.connect(DB_link_rooms)
+    cursor = conn.cursor()
+
+    # Получаем список всех логинов из таблицы users
+    cursor.execute("SELECT id FROM rooms")
+    usernames = [row[0] for row in cursor.fetchall()]
+
+    conn.close()
+    return usernames
+
+def get_all_rooms_name():
+    """Получаем все комнаты пользователей из таблицы rooms"""
+    conn = sqlite3.connect(DB_link_rooms)
+    cursor = conn.cursor()
+
+    # Получаем список всех логинов из таблицы users
+    cursor.execute("SELECT name_room FROM rooms")
+    usernames = [row[0] for row in cursor.fetchall()]
+
+    conn.close()
+    return usernames

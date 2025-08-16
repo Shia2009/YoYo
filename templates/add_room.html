@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YoYo Добавить пользователя в комнату</title>
+    <title>YoYo Войти в комнату</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,27 +84,26 @@
 <body>
     <div class="container">
         <form method="POST" class="search-form">
-          <p>Какого пользователя YoYo добавить в {{ name_room }}</p>
             <input type="text"
                    id="username"
                    name="username"
-                   placeholder="Введите имя пользователя..."
+                   placeholder="Введите id комнаты..."
                    value="{{ search_query if search_query }}">
             <button type="submit">Поиск</button>
         </form>
 
         <div id="output">
             {% if exact_match %}
-                <h3>Найден пользователь:</h3>
+                <h3>Найдена комната:</h3>
                 <ul class="user-list">
                     <li class="user-item">
-                        <a href="/room/add_user/confim/{{ exact_match }}_to_{{ id_room }}" class="user-link">{{ exact_match }}</a>
+                        <a href="/room/add_room/confim/{{ username }}_to_{{ exact_match }}" class="user-link">{{ name_room }}</a>
                     </li>
                 </ul>
 
         </div>
             {% elif search_query %}
-                <p class="no-results">Пользователи не найдены</p>
+                <p class="no-results">Комнаты с таким ID не найдены</p>
             {% endif %}
         </div>
     </div>
@@ -113,7 +112,7 @@
         function validateForm() {
             const username = document.getElementById('username').value.trim();
             if (!username) {
-                alert('Пожалуйста, введите имя пользователя');
+                alert('Пожалуйста, введите ID комнаты');
                 return false;
             }
             return true;

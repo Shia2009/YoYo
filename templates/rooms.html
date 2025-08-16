@@ -83,13 +83,12 @@
 </head>
 <body>
     <div class="container">
-      <form method="POST" action="/create_room" onsubmit="return validateForm()">
+      <form method="POST" onsubmit="return validateForm()">
         <h1>Создать комнату</h1>
           <p>В комнате вы сможете общаться с другими пользователями YoYo</p>
             <p><a href="/home" class="link">Вернуться домой</a></p>
             <p><a href="/create_room" class="link">Создать комнату</a></p>
-            <p><a href="/add_room" class="link">Добавить комнату</a></p>
-            <p><a href="/user/{{ username }}" class="link">Мой профиль</a></p>
+            <p><a href="/room/add_room/" class="link">Добавить комнату</a></p>
             <h2>Ваши комнаты:</h2>
                 {% if rooms %}
                     {% for room_id, room_name in rooms %}

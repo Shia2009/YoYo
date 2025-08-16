@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YoYo Комнаты</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 8px 12px;
+            margin: 5px 0;
+        }
+        input {
+            padding: 8px 12px;
+            margin: 5px 0;
+        #output {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9f7fe;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="username">{{ username_friend }}</span></h1>
+    <p>Домашняя страница. </p>
+      <form method="POST">
+          <button type="submit" name="button" value="add-user">Добавить пользователя в "{{ name_room }}"</button>
+      </form>
+      <a href="/room/<id>" class="link">Вернуться в "{{ name_room }}"</a>
+      <h2>Все записи пользователя <span class="username">{{ username_friend }}</span></h2>
+      {% if notes %}
+        {% for note in notes %}
+            <div class="note">
+                <h3>{{ note[0] }}</h3>  <!-- subject -->
+                <p>{{ note[1] }}</p>    <!-- notes -->
+                <div class="time">{{ note[2] }}</div>  <!-- time -->
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Пока нет ни одной записи.</p>
+    {% endif %}
+            <div id="output">{{ output }}</div>
+        </form>
+    </div>
+  </body>
+</html>

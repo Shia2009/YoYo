@@ -78,14 +78,14 @@ def search():
 
 @app.route('/rooms', endpoint='rooms', methods=['GET', 'POST'])
 def rooms_():
-    rooms=get_all_rooms()
     username = session.get('username')  # Получаем из сессии
+    rooms=get_all_rooms(username)
     return render_template(f'rooms.html',
                            username=username,
                            rooms=rooms)
 
 @app.route('/create_room', endpoint='create_room', methods=['GET', 'POST'])
-def create_room():
+def create_room_():
     username = session.get('username')  # Получаем из сессии
     if request.method=='POST':
         name_room = request.form.get('name_room')
@@ -101,17 +101,111 @@ def room_main(id):
         message = request.form.get('message')
         if message not in ['', ' ', '  ', None]:
             new_message_room(id, username, message)
-    messages=get_all_message_from_room(id)
-    rooms=get_all_rooms()
+    messages=reverse_list(get_all_message_from_room(id))
+    rooms=get_all_rooms(username)
     for room in rooms:
         if room[0]==id:
             name_room=room[1]
+            session['name_room']=name_room
             break
     return render_template(f'room.html',id_room=id, name_room=name_room, messages=messages)
 
-# @app.route('/room/add_user/{{ id_room }}', endpoint='/room/add_user/{{ id_room }}', methods=['GET', 'POST'])
-# def add_user_to_room(id_room):
-#     return render_template(f'create_room.html', username=username)
+@app.route('/room/add_user/<id_room>', endpoint='/room/add_user/<id_room>', methods=['GET', 'POST'])
+def add_user_to_room(id_room):
+    user = request.form.get('username')
+    name_room = session.get('name_room')
+    if request.method == 'POST':
+        users = get_all_usernames()
+        if user in users:
+            exact_match = users[users.index(user)]
+            session['username_friend']=exact_match
+            return render_template(f'add_user_to_room.html',
+                                   name_room=name_room,
+                                   exact_match=exact_match,
+                                   id_room=id_room)
+    return render_template(f'add_user_to_room.html', name_room=name_room)
+
+@app.route('/room/add_user/confim/<username>_to_<id_room>', endpoint='/room/add_user/confim/<username>_to_<id_room>', methods=['GET', 'POST'])
+def add_user_to_room_confim(username ,id_room):
+    button_value = request.form.get('button')
+    user_friend = session.get('username_friend')
+    user = session.get('username')
+    name_room = session.get('name_room')
+    if button_value == 'add-user':
+        add_new_member_to_room(id_room, user_friend)
+        return redirect(url_for(f'rooms'))
+    if get_user_notes(username)!=False:
+        notes=get_user_notes(username)
+    return render_template(f'confim_add_user_to_room.html',
+                           name_room=name_room,
+                           id_room=id_room,
+                           username_friend=user_friend,
+                           notes=notes)
+
+@app.route('/room/remove_user/<id_room>', endpoint='/room/remove_user/<id_room>', methods=['GET', 'POST'])
+def remove_user_from_room(id_room):
+    user = request.form.get('username')
+    name_room = session.get('name_room')
+    if request.method == 'POST':
+        users = get_all_usernames()
+        if user in users:
+            exact_match = users[users.index(user)]
+            session['username_friend']=exact_match
+            return render_template(f'remove_user_from_room.html',
+                                   name_room=name_room,
+                                   exact_match=exact_match,
+                                   id_room=id_room)
+    return render_template(f'remove_user_from_room.html', name_room=name_room)
+
+@app.route('/room/remove_user/confim/<username>_from_<id_room>', endpoint='/room/remove_user/confim/<username>_from_<id_room>', methods=['GET', 'POST'])
+def add_user_to_room_confim(username ,id_room):
+    button_value = request.form.get('button')
+    user_friend = session.get('username_friend')
+    user = session.get('username')
+    name_room = session.get('name_room')
+    if button_value == 'remove-user':
+        remove_member_from_room(id_room, user_friend)
+        return redirect(url_for(f'rooms'))
+        print('REMOVE'*8)
+    if get_user_notes(username)!=False:
+        notes=get_user_notes(username)
+    return render_template(f'confim_delete_user_from_room.html',
+                           name_room=name_room,
+                           id_room=id_room,
+                           username_friend=user_friend,
+                           notes=notes)
+
+@app.route('/room/add_room/', endpoint='/room/add_room/', methods=['GET', 'POST'])
+def add_room_():
+    username=session.get('username')
+    if request.method == 'POST':
+        room = request.form.get('username')
+        rooms = get_all_rooms_id()
+        rooms_name=get_all_rooms_name()
+        if room in rooms:
+            exact_match = rooms[rooms.index(room)]
+            name_room=rooms_name[rooms.index(room)]
+            session['name_room']=name_room
+            return render_template(f'add_room.html',
+                                   name_room=name_room,
+                                   exact_match=exact_match,
+                                   id_room=room,
+                                   username=username)
+    return render_template(f'add_room.html')
+
+@app.route('/room/add_room/confim/<username>_to_<id_room>', methods=['GET', 'POST'])
+def add_user_to_room_confim(username ,id_room):
+    button_value = request.form.get('button')
+    messages=get_all_message_from_room(id_room)
+    name_room=session.get('name_room')
+    if button_value=='join-room':
+        print('123123123'*10)
+        add_new_member_to_room(id_room, username)
+        return redirect(url_for(f'rooms'))
+    return render_template(f'confim_add_room.html',
+                           username=username,
+                           name_room=name_room,
+                           messages=messages)
 
 
 

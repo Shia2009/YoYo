@@ -49,11 +49,7 @@
       <form method="POST" onsubmit="return validateForm()">
           <h1>{{ name_room }}</h1>
           <p><a href="/rooms" class="link">Вернуться в "Комнаты"</a></p>
-          <p><a href="/room/add_user/{{ id_room }}" class="link">Пригласить пользователя</a></p>
-          <p><a href="/room/remove_user/{{ id_room }}" class="link">Удалить пользователя</a></p>
-          <p><a href="/room/info/{{ id_room }}" class="link">Информация комнаты</a></p>
-            <input type="text" id="message" name="message" placeholder="Сообщение...">
-            <button onclick="processInput()" class="btn" id="SendMessageButton">Отправить</button>
+            <button onclick="processInput()" class="btn" name="button" value="join-room">Войти в комнату </button>
               <div id="messages-container">
                 {% if messages %}
                     <div id="messages">
@@ -69,32 +65,6 @@
                     <p>Пока нет ни одного сообщения...</p>
                 {% endif %}
               </div>
-
-
     </div>
-    <script>
-    // Функция для обновления сообщений
-    function updateMessages() {
-        fetch(`/room/{{ id_room }}`)
-            .then(response => response.text())
-            .then(html => {
-                // Создаем временный элемент для парсинга
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                // Находим блок с сообщениями в новом HTML
-                const newMessages = doc.querySelector('#messages');
-                if (newMessages) {
-                    // Заменяем содержимое
-                    document.querySelector('#messages').innerHTML = newMessages.innerHTML;
-                }
-            });
-    }
-
-    // Обновляем каждые 3 секунды
-    setInterval(updateMessages, 500);
-
-    // Обновляем сразу при загрузке страницы
-    document.addEventListener('DOMContentLoaded', updateMessages);
-    </script>
 </body>
 </html>

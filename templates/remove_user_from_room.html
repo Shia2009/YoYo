@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YoYo Добавить пользователя в комнату</title>
+    <title>YoYo Удалить пользователя в комнату</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,7 +84,7 @@
 <body>
     <div class="container">
         <form method="POST" class="search-form">
-          <p>Какого пользователя YoYo добавить в {{ name_room }}</p>
+          <p>Какого пользователя YoYo удалить в {{ name_room }}</p>
             <input type="text"
                    id="username"
                    name="username"
@@ -98,7 +98,7 @@
                 <h3>Найден пользователь:</h3>
                 <ul class="user-list">
                     <li class="user-item">
-                        <a href="/room/add_user/confim/{{ exact_match }}_to_{{ id_room }}" class="user-link">{{ exact_match }}</a>
+                        <a href="/room/remove_user/confim/{{ exact_match }}_from_{{ id_room }}" class="user-link">{{ exact_match }}</a>
                     </li>
                 </ul>
 
